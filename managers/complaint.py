@@ -3,11 +3,13 @@ import uuid
 
 from constans import TEMP_FILE_FOLDER
 from db import database
-from models import complaint, RoleType, State
+from models import complaint, RoleType, State, user
 from services.s3 import S3Services
+from services.ses import SESServices
 from utils.helpers import decode_photo
 
 s3 = S3Services()
+ses = SESServices()
 
 
 class ComplaintManager:
@@ -43,7 +45,12 @@ class ComplaintManager:
 
     @staticmethod
     async def approve(complain_id):
+        complain_db = await database.fetch_one(complaint.select().where(complaint.c.id == complain_id))
+        complainer_id = complain_db['complainer_id']
+        user_db = await database.fetch_one(user.select().where(user.c.id == complainer_id))
+        user_email = user_db['email']
         await database.execute(complaint.update().where(complaint.c.id == complain_id).values(status=State.approved))
+        ses.send_email('Your complaint is approved', [user_email], 'Congrats! Your complaint is approved.')
 
     @staticmethod
     async def reject(complain_id):
