@@ -16,7 +16,7 @@ class WiseService:
 
     def _get_profile_id(self):
         url = self.main_url + '/v1/profiles'
-        resp = requests.get(self.main_url, headers=self.headers)
+        resp = requests.get(url, headers=self.headers)
 
         if resp.status_code == 200:
             resp = resp.json()
@@ -25,10 +25,10 @@ class WiseService:
             raise HTTPException(status_code=500, detail='Payment provider is not available at the moment')
 
     def create_quote(self, amount):
-        url = self.main_url + '/v2/quotes'
+        url = self.main_url + '/v1/quotes'
         data = {
             'sourceCurrency': 'EUR',
-            'targetCurrency': 'BGN',
+            'targetCurrency': 'EUR',
             'targetAmount': amount,
             'profile': self.profile_id
         }
@@ -38,6 +38,7 @@ class WiseService:
             resp = resp.json()
             return resp['id']
         else:
+            print(resp.json())
             raise HTTPException(status_code=500, detail='Payment provider is not available at the moment')
 
     def create_recipient_account(self, full_name, iban):

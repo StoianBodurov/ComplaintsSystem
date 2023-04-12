@@ -36,7 +36,7 @@ class ComplaintManager:
         data['photo_url'] = s3.upload_photo(path, name, ext)
         os.remove(path)
         id_ = await database.execute(complaint.insert().values(**data))
-        await ComplaintManager.issue_transaction(data['amount'], f'{user["first_name"]} {user["last_name"]}', id_)
+        await ComplaintManager.issue_transaction(data['amount'], f'{user["first_name"]} {user["last_name"]}', user['iban'], id_)
         return await database.fetch_one(complaint.select().where(complaint.c.id == id_))
 
     @staticmethod
