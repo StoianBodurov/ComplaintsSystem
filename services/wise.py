@@ -89,4 +89,14 @@ class WiseService:
         else:
             raise HTTPException(status_code=500, detail='Payment provider is not available at the moment')
 
+    def cancel_transfer(self, transfer_id):
+        url = self.main_url + f'/v1/transfers/{transfer_id}/cancel'
+
+        resp = requests.post(url, headers=self.headers)
+        if resp.status_code == 200:
+            resp = resp.json()
+            return resp['id']
+        else:
+            raise HTTPException(status_code=500, detail='Payment provider is not available at the moment')
+
 
